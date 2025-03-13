@@ -2,8 +2,9 @@
 
 function processRecursivlyXml (SimpleXMLElement $node, &$output) {
     if (count($node->children()) > 0) {
+		$checkClassDefinition = ($node->getName() === 'classes');
         foreach ($node as $keyNewNode=>$newNode) {
-			if($keyNewNode == 'class'){
+			if($checkClassDefinition && $keyNewNode == 'class'){
 				$attributesXML = $newNode->attributes();
 				if (isset($attributesXML['id']) && !in_array($attributesXML['id'], $output)) {
 					$output[] = (string) $attributesXML['id'];
