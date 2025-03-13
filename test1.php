@@ -1,12 +1,16 @@
 <?php
 
-if (file_exists('sample1.xml')) {
-    $xml = simplexml_load_file('sample1.xml');
-	
-	echo '<pre>';
-    print_r($xml);
-	echo '</pre>';
+if(is_array($argv) && count($argv) >= 2){
+	$filePath = mb_ereg_replace("([^\w\s\-_~,;\[\]\(\).:/?#@!$&'*=+%])", '', trim($argv[1]));
+	$xmlContent = @file_get_contents($filePath);
+	if ($xmlContent !== false) {
+		$xmlObject = simplexml_load_string($xmlContent);
+		
+		var_dump($xmlObject);
+	} else {
+		exit('Failed to open xml.');
+	}
 } else {
-    exit('Failed to open xml.');
+	exit("File Argument missing.\nPHP test1.php [XML File]\n");
 }
 ?>
