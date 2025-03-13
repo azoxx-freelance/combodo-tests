@@ -35,15 +35,16 @@ function generatePhpClassesFromXML (SimpleXMLElement $xmlObject){
 	return $result;
 }
 
-function createPhpFileFromXml (SimpleXMLElement $xmlObject, $fileName){
+function createPhpFileFromXml (SimpleXMLElement $xmlObject, $fileName, &$output){
 	
 	$phpContent = generatePhpClassesFromXML($xmlObject);
-	echo 'Génération du fichier '.$fileName.".php avec ce contenu :\n\n".$phpContent."\n\n";
+	$output = $phpContent;
 	
 	return file_put_contents($fileName.'.php', $phpContent);
 }
 
 
+$response = [];
 if(is_array($argv) && count($argv) >= 2){
 	$filePath = mb_ereg_replace("([^\w\s\-_~,;\[\]\(\).:/?#@!$&'*=+%])", '', trim($argv[1]));
 	$xmlContent = @file_get_contents($filePath);
@@ -51,15 +52,19 @@ if(is_array($argv) && count($argv) >= 2){
 		$fileName = pathinfo($filePath, PATHINFO_FILENAME);
 		$xmlObject = simplexml_load_string($xmlContent);
 		
-		if(createPhpFileFromXml($xmlObject, $fileName)){
-			echo "Fichier ".$fileName.".php généré avec succès !\n\n";
+		$details = [];
+		if(createPhpFileFromXml($xmlObject, $fileName, $details)){
+			$response = ['code'=>200, 'message'=>'Successfully generated file '.$fileName.'.php !', 'file'=>$fileName, 'content'=>$details];
 		} else  {
-			exit('Erreur lors de la génération du fichier');
+			$response = ['code'=>500, 'message'=>'Failed generate PHP Class from XML'];
 		}
 	} else {
-		exit('Failed to open xml.');
+		$response = ['code'=>500, 'message'=>'Failed to open xml, check file integrity'];
 	}
 } else {
-	exit("File Argument missing.\nPHP test1.php [XML File]\n");
+	$response = ['code'=>500, 'message'=>'File Argument missing: PHP '.basename(__FILE__).' [Path or URL of XML File]'];
 }
+
+
+exit(json_encode($response));
 ?>
