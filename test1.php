@@ -6,7 +6,18 @@ if(is_array($argv) && count($argv) >= 2){
 	if ($xmlContent !== false) {
 		$xmlObject = simplexml_load_string($xmlContent);
 		
-		var_dump($xmlObject);
+		$classInXML = [];
+		foreach($xmlObject as $key=>$value) {
+			if($key == 'class'){
+				$attributesXML = $value->attributes();
+				if (isset($attributesXML['id']) && !in_array($attributesXML['id'], $classInXML)) {
+					$classInXML[] = $attributesXML['id'];
+				}
+			}
+		}
+		
+		echo count($classInXML);
+		
 	} else {
 		exit('Failed to open xml.');
 	}
